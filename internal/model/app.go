@@ -1,11 +1,11 @@
 package model
 
-type ApplicationRequest struct {
+type Application struct {
 	AppName      string   `json:"AppName"`
 	Replicas     int      `json:"Replicas"`
 	ImageAddress string   `json:"ImageAddress"`
 	ImageTag     string   `json:"ImageTag"`
 	ServicePort  int      `json:"ServicePort"`
 	Resources    Resource `json:"Resources"`
-	Envs         []EnvVar `json:"Envs"`
+	Envs         []Env    `json:"Envs"`
 }
