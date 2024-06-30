@@ -6,7 +6,6 @@ import (
 	"Kaas/internal/kube"
 	"github.com/labstack/echo/v4"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -20,9 +19,7 @@ func main() {
 
 	requestHandler := handler.NewHandler(clientSet)
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Kaas service ")
-	})
+	e.GET("/", requestHandler.GetNodes)
 
 	e.POST("/create", requestHandler.CreateApp)
 
