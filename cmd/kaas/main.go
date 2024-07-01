@@ -23,5 +23,9 @@ func main() {
 
 	e.POST("/create", requestHandler.CreateApp)
 
+	e.GET("/status/:appName", requestHandler.GetDeploymentStatus)
+
+	e.GET("/status", requestHandler.GetAllDeploymentsStatus)
+
 	e.Logger.Fatal(e.Start(":8080"))
 }

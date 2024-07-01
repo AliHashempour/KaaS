@@ -131,6 +131,86 @@ func (h *Handler) createService(app *model.Application) (*corev1.Service, error)
 	return h.Client.CoreV1().Services("default").Create(context.TODO(), service, metav1.CreateOptions{})
 }
 
+func (h *Handler) GetDeploymentStatus(c echo.Context) error {
+	appName := c.Param("appName")
+	if appName == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Application name is required")
+	}
+
+	// Retrieve the deployment
+	deployment, err := h.Client.AppsV1().Deployments("default").Get(context.TODO(), appName, metav1.GetOptions{})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get deployment: "+err.Error())
+	}
+
+	// Retrieve pods associated with the deployment
+	podList, err := h.Client.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("app=%s", appName),
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to list pods: "+err.Error())
+	}
+
+	// Construct the response with deployment and pod details
+	appStatus := model.AppStatus{
+		DeploymentName: deployment.Name,
+		Replicas:       *deployment.Spec.Replicas,
+		ReadyReplicas:  deployment.Status.ReadyReplicas,
+		PodStatuses:    []model.PodStatus{},
+	}
+
+	for _, pod := range podList.Items {
+		ps := model.PodStatus{
+			Name:      pod.Name,
+			Phase:     pod.Status.Phase,
+			HostIP:    pod.Status.HostIP,
+			PodIP:     pod.Status.PodIP,
+			StartTime: pod.Status.StartTime,
+		}
+		appStatus.PodStatuses = append(appStatus.PodStatuses, ps)
+	}
+
+	return c.JSON(http.StatusOK, appStatus)
+}
+
+func (h *Handler) GetAllDeploymentsStatus(c echo.Context) error {
+	deployments, err := h.Client.AppsV1().Deployments("default").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get deployments: "+err.Error())
+	}
+
+	var allStatuses []model.AppStatus
+
+	for _, deployment := range deployments.Items {
+		podList, err := h.Client.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("app=%s", deployment.Name),
+		})
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to list pods for deployment "+deployment.Name+": "+err.Error())
+		}
+
+		appStatus := model.AppStatus{
+			DeploymentName: deployment.Name,
+			Replicas:       *deployment.Spec.Replicas,
+			ReadyReplicas:  deployment.Status.ReadyReplicas,
+		}
+
+		for _, pod := range podList.Items {
+			ps := model.PodStatus{
+				Name:      pod.Name,
+				Phase:     pod.Status.Phase,
+				HostIP:    pod.Status.HostIP,
+				PodIP:     pod.Status.PodIP,
+				StartTime: pod.Status.StartTime,
+			}
+			appStatus.PodStatuses = append(appStatus.PodStatuses, ps)
+		}
+		allStatuses = append(allStatuses, appStatus)
+	}
+
+	return c.JSON(http.StatusOK, allStatuses)
+}
+
 func int32Ptr(i int32) *int32 {
 	return &i
 }
