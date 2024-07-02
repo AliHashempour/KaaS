@@ -13,15 +13,15 @@ import (
 	"net/http"
 )
 
-type Handler struct {
+type Application struct {
 	Client *kubernetes.Clientset
 }
 
-func NewHandler(clientSet *kubernetes.Clientset) *Handler {
-	return &Handler{Client: clientSet}
+func NewApplication(clientSet *kubernetes.Clientset) *Application {
+	return &Application{Client: clientSet}
 }
 
-func (h *Handler) GetNodes(c echo.Context) error {
+func (h *Application) GetNodes(c echo.Context) error {
 	nodes, err := h.Client.CoreV1().Nodes().List(c.Request().Context(), metav1.ListOptions{})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get nodes: "+err.Error())
@@ -35,7 +35,7 @@ func (h *Handler) GetNodes(c echo.Context) error {
 	return c.JSON(http.StatusOK, nodeNames)
 }
 
-func (h *Handler) CreateApp(c echo.Context) error {
+func (h *Application) CreateApp(c echo.Context) error {
 	app := new(model.Application)
 	if err := c.Bind(app); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input")
@@ -64,7 +64,7 @@ func (h *Handler) CreateApp(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Application created successfully"})
 }
 
-func (h *Handler) createSecret(app *model.Application) (*corev1.Secret, error) {
+func (h *Application) createSecret(app *model.Application) (*corev1.Secret, error) {
 	secretData := make(map[string][]byte)
 	for _, env := range app.Envs {
 		if env.IsSecret {
@@ -80,7 +80,7 @@ func (h *Handler) createSecret(app *model.Application) (*corev1.Secret, error) {
 	return h.Client.CoreV1().Secrets("default").Create(context.TODO(), secret, metav1.CreateOptions{})
 }
 
-func (h *Handler) createDeployment(app *model.Application) (*appsv1.Deployment, error) {
+func (h *Application) createDeployment(app *model.Application) (*appsv1.Deployment, error) {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: app.AppName,
@@ -111,7 +111,7 @@ func (h *Handler) createDeployment(app *model.Application) (*appsv1.Deployment, 
 	return h.Client.AppsV1().Deployments("default").Create(context.TODO(), deployment, metav1.CreateOptions{})
 }
 
-func (h *Handler) createService(app *model.Application) (*corev1.Service, error) {
+func (h *Application) createService(app *model.Application) (*corev1.Service, error) {
 	service := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: app.AppName + "-service",
@@ -131,7 +131,7 @@ func (h *Handler) createService(app *model.Application) (*corev1.Service, error)
 	return h.Client.CoreV1().Services("default").Create(context.TODO(), service, metav1.CreateOptions{})
 }
 
-func (h *Handler) GetDeploymentStatus(c echo.Context) error {
+func (h *Application) GetDeploymentStatus(c echo.Context) error {
 	appName := c.Param("appName")
 	if appName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Application name is required")
@@ -173,7 +173,7 @@ func (h *Handler) GetDeploymentStatus(c echo.Context) error {
 	return c.JSON(http.StatusOK, appStatus)
 }
 
-func (h *Handler) GetAllDeploymentsStatus(c echo.Context) error {
+func (h *Application) GetAllDeploymentsStatus(c echo.Context) error {
 	deployments, err := h.Client.AppsV1().Deployments("default").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get deployments: "+err.Error())
