@@ -17,15 +17,18 @@ func main() {
 		log.Fatalf("Failed to get Kubernetes config: %v", err)
 	}
 
-	requestHandler := handler.NewHandler(clientSet)
+	applicationHandler := handler.NewApplication(clientSet)
+	serviceHandler := handler.NewService(clientSet)
 
-	e.GET("/", requestHandler.GetNodes)
+	e.GET("/", applicationHandler.GetNodes)
 
-	e.POST("/create", requestHandler.CreateApp)
+	e.POST("/create", applicationHandler.CreateApp)
 
-	e.GET("/status/:appName", requestHandler.GetDeploymentStatus)
+	e.GET("/status/:appName", applicationHandler.GetDeploymentStatus)
 
-	e.GET("/status", requestHandler.GetAllDeploymentsStatus)
+	e.GET("/status", applicationHandler.GetAllDeploymentsStatus)
+
+	e.POST("/postgres", serviceHandler.DeployPostgres)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
