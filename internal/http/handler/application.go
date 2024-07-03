@@ -84,6 +84,10 @@ func (h *Application) createDeployment(app *model.Application) (*appsv1.Deployme
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: app.AppName,
+			Labels: map[string]string{
+				"app":     app.AppName,
+				"monitor": "true",
+			},
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: int32Ptr(app.Replicas),
@@ -92,7 +96,11 @@ func (h *Application) createDeployment(app *model.Application) (*appsv1.Deployme
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{"app": app.AppName},
+					Name: app.AppName,
+					Labels: map[string]string{
+						"app":     app.AppName,
+						"monitor": "true",
+					},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
