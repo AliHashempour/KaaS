@@ -3,6 +3,7 @@ package model
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
 )
 
 type AppStatus struct {
@@ -18,4 +19,14 @@ type PodStatus struct {
 	HostIP    string
 	PodIP     string
 	StartTime *metav1.Time
+}
+
+type MonitorStatus struct {
+	ID           int       `json:"id"`
+	AppName      string    `json:"app_name"`
+	FailureCount int       `json:"failure_count"`
+	SuccessCount int       `json:"success_count"`
+	LastFailure  time.Time `json:"last_failure"`
+	LastSuccess  time.Time `json:"last_success"`
+	CreatedAt    time.Time `json:"created_at"`
 }
