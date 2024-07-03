@@ -8,11 +8,11 @@ image:
   repository: alihashempour/kaas-api
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0"
+  tag: "1.2"
 
 imagePullSecrets: [ ]
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "kaas-api"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -32,9 +32,9 @@ podSecurityContext: { }
 # fsGroup: 2000
 
 securityContext: { }
-  # capabilities:
-  #   drop:
-  #   - ALL
+# capabilities:
+#   drop:
+#   - ALL
 # readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
@@ -51,9 +51,9 @@ resources: { }
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
 # requests:
 #   cpu: 100m
 #   memory: 128Mi
@@ -84,3 +84,20 @@ nodeSelector: { }
 tolerations: [ ]
 
 affinity: { }
+
+monitoringJob:
+  image:
+    repository: monitoring-job
+    tag: "1.0"
+  schedule: "*/5 * * * *"
+
+postgres:
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: latest
+  user: postgres
+  password: postgres
+  database: monitoring
+  storageSize: 5Gi
+
