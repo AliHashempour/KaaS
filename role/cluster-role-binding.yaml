@@ -4,7 +4,7 @@ metadata:
   name: all-resource-manager-binding
 subjects:
   - kind: ServiceAccount
-    name: kaas-api-release
+    name: kaas-api
     namespace: default
 roleRef:
   kind: ClusterRole
