@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Kaas/internal/database"
 	"Kaas/internal/http/handler"
 	"Kaas/internal/http/middleware"
 	"Kaas/internal/kube"
@@ -17,8 +18,14 @@ func main() {
 		log.Fatalf("Failed to get Kubernetes config: %v", err)
 	}
 
+	db, err := database.InitializeDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
 	applicationHandler := handler.NewApplication(clientSet)
 	serviceHandler := handler.NewService(clientSet)
+	jobHandler := handler.NewJobHandler(db)
 
 	e.GET("/", applicationHandler.GetNodes)
 
@@ -29,6 +36,8 @@ func main() {
 	e.GET("/status", applicationHandler.GetAllDeploymentsStatus)
 
 	e.POST("/postgres", serviceHandler.DeployPostgres)
+
+	e.GET("/health/:appName", jobHandler.GetAppHealth)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

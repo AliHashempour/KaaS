@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kaas-api-postgres
+  labels:
+    app: kaas-api
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: kaas-api-postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kaas-api-postgres
+  labels:
+    app: kaas-api
+spec:
+  serviceName: "kaas-api-postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kaas-api-postgres
+  template:
+    metadata:
+      labels:
+        app: kaas-api-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "monitoring"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
