@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: myapp-monitor
+  labels:
+    app: myCronJob
+    component: monitor
+spec:
+  schedule: "{{ .Values.monitoringJob.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: myapp-cronjob-sa
+          containers:
+            - name: monitor
+              image: "{{ .Values.monitoringJob.image.repository }}:{{ .Values.monitoringJob.image.tag }}"
+              imagePullPolicy: IfNotPresent
+          restartPolicy: OnFailure
