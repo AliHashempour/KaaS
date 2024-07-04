@@ -1,30 +1,29 @@
 package handler
 
 import (
-	"Kaas/internal/model"
+	"Kaas/internal/repository"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"net/http"
 )
 
-type Job struct {
-	DB *gorm.DB
+type JobHandler struct {
+	Repo repository.JobRepository
 }
 
-func NewJobHandler(db *gorm.DB) *Job {
-	return &Job{DB: db}
+func NewJobHandler(repo repository.JobRepository) *JobHandler {
+	return &JobHandler{Repo: repo}
 }
 
-func (j *Job) GetAppHealth(c echo.Context) error {
+func (h *JobHandler) GetAppHealth(c echo.Context) error {
 	appName := c.Param("appName")
 	if appName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Application name is required")
 	}
 
-	var status model.MonitorStatus
-	result := j.DB.Where("app_name = ?", appName).First(&status)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
+	status, err := h.Repo.GetAppHealth(appName)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "No status found for the application")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")

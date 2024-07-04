@@ -5,6 +5,7 @@ import (
 	"Kaas/internal/http/handler"
 	"Kaas/internal/http/middleware"
 	"Kaas/internal/kube"
+	"Kaas/internal/repository"
 	"github.com/labstack/echo/v4"
 	"log"
 )
@@ -25,7 +26,7 @@ func main() {
 
 	applicationHandler := handler.NewApplication(clientSet)
 	serviceHandler := handler.NewService(clientSet)
-	jobHandler := handler.NewJobHandler(db)
+	jobHandler := handler.NewJobHandler(repository.NewJobRepository(db))
 
 	e.GET("/", applicationHandler.GetNodes)
 
