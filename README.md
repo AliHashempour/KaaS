@@ -64,7 +64,7 @@ The health of each application is monitored using HTTP GET requests to the root 
 
 ### Deploying an Application
 
-To deploy an application, send a POST request to the `/create` endpoint with the following JSON payload:
+To deploy an application, send a POST request to the `/application/create` endpoint with the following JSON payload:
 
 ```json
 {
@@ -94,7 +94,7 @@ To deploy an application, send a POST request to the `/create` endpoint with the
 
 ### Check Application Status
 
-To check the status of a specific application, send a GET request to the `/status/{appName}` endpoint,
+To check the status of a specific application, send a GET request to the `/application/status/{appName}` endpoint,
 replacing `{appName}` with the name of your application. Example:
 
 ```json
@@ -129,9 +129,27 @@ replacing `{appName}` with the name of your application. Example:
 
 ```
 
+### Deploying PostgreSQL as a Self-Service
+
+To deploy a PostgreSQL database, send a POST request to the `/service/postgres` endpoint with the following JSON
+payload:
+
+```json
+{
+  "AppName": "example-postgres",
+  "Resources": {
+    "CPU": "500m",
+    "RAM": "1Gi"
+  },
+  "External": true
+}
+
+```
+
 ### Monitoring an Application
 
-To monitor the health of an application, send a GET request to the `/health/{appName}` endpoint, replacing `{appName}`
+To monitor the health of an application, send a GET request to the `/applicartion/health/{appName}` endpoint,
+replacing `{appName}`
 with the name of your application. Example:
 
 ```json
