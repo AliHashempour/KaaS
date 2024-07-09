@@ -1,6 +1,6 @@
-# Kaas
+# KaaS
 
-Kaas (Kubernetes as a Service) is a self-service platform written with Golang that allows users to deploy, monitor, and
+KaaS (Kubernetes as a Service) is a self-service platform written with Golang that allows users to deploy, monitor, and
 manage their applications and databases effortlessly.
 
 ## Technologies used
