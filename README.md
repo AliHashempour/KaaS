@@ -9,6 +9,7 @@ manage their applications and databases effortlessly.
 - [Echo](https://echo.labstack.com/), HTTP web framework.
 - [PostgreSQL](https://www.postgresql.org/), Database management system.
 - [Minikube](https://minikube.sigs.k8s.io/docs/), Tool for running Kubernetes locally.
+- [client-go](https://github.com/kubernetes/client-go), Go client for Kubernetes.
 - [Helm](https://helm.sh/), Kubernetes package manager.
 - [Docker](https://www.docker.com/), Containerization platform.
 
@@ -139,7 +140,7 @@ with the name of your application. Example:
   "FailureCount": 0,
   "SuccessCount": 3,
   "LastSuccess": "2024-07-01T12:30:00Z",
-  "LastFailure": "2024-07-01T14:00:00Z"
+  "LastFailure": ""
 }
 
 ```
