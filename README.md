@@ -56,6 +56,9 @@ database settings.
 To monitor the health of an application, I use a CronJob that regularly checks the application's health status every 5
 minutes. You can still change this interval as per your requirements.
 
+The health of each application is monitored using HTTP GET requests to the root endpoint (/). If the response status is
+200, the application is considered healthy. Monitoring results are stored in the PostgreSQL database.
+
 ## Examples
 
 ### Deploying an Application
@@ -75,14 +78,14 @@ To deploy an application, send a POST request to the `/create` endpoint with the
   },
   "Envs": [
     {
-      "Key": "ENV_VAR1",
-      "Value": "value1",
+      "Key": "DB_USER",
+      "Value": "db_user",
       "IsSecret": true
     },
     {
-      "Key": "ENV_VAR2",
-      "Value": "value2",
-      "IsSecret": true
+      "Key": "DB_NAME",
+      "Value": "db_name",
+      "IsSecret": false
     }
   ]
 }
