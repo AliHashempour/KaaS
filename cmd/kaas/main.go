@@ -30,15 +30,15 @@ func main() {
 
 	e.GET("/", applicationHandler.GetNodes)
 
-	e.POST("/create", applicationHandler.CreateApp)
+	e.POST("application/create", applicationHandler.CreateApp)
 
-	e.GET("/status/:appName", applicationHandler.GetDeploymentStatus)
+	e.GET("application/status/:appName", applicationHandler.GetDeploymentStatus)
 
-	e.GET("/status", applicationHandler.GetAllDeploymentsStatus)
+	e.GET("application/status", applicationHandler.GetAllDeploymentsStatus)
 
-	e.POST("/postgres", serviceHandler.DeployPostgres)
+	e.POST("service/postgres", serviceHandler.DeployPostgres)
 
-	e.GET("/health/:appName", jobHandler.GetAppHealth)
+	e.GET("application/health/:appName", jobHandler.GetAppHealth)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
